@@ -1,0 +1,19 @@
+{ 
+  
+"Slider":{
+"dashboard":"Dashboard",
+"banners":"Banners",
+"category":"Category",
+"create-products":"Create Product",
+"products":"Products",
+"orders":"Orders",
+"collection":"Collections",
+"customers":"Customers",
+"inventory":"Inventory",
+"analytics":"Analytics",
+"settings":"Settings",
+"Blogs":"Blogs",
+"coupons":"Coupons",
+"Videos":"Videos"
+  }
+}

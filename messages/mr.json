@@ -1,0 +1,18 @@
+{
+  "Slider": {
+    "dashboard": "डॅशबोर्ड",
+    "banners": "बॅनर",
+    "category": "श्रेणी",
+    "create-products": "उत्पादन तयार करा",
+    "products": "उत्पादने",
+    "orders": "ऑर्डर",
+    "collection": "संग्रह",
+    "customers": "ग्राहक",
+    "inventory": "साठा",
+    "analytics": "विश्लेषण",
+    "settings": "सेटिंग्ज",
+    "Blogs": "ब्लॉग",
+    "coupons": "कूपन",
+    "Videos": "व्हिडिओ"
+  }
+}

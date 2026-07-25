@@ -1,0 +1,18 @@
+{
+  "Slider": {
+    "dashboard": "Tableau de bord",
+    "banners": "Bannières",
+    "category": "Catégories",
+    "create-products": "Créer un produit",
+    "products": "Produits",
+    "orders": "Commandes",
+    "collection": "Collections",
+    "customers": "Clients",
+    "inventory": "Inventaire",
+    "analytics": "Analyses",
+    "settings": "Paramètres",
+    "Blogs": "Blogs",
+    "coupons": "Coupons",
+    "Videos": "Vidéos"
+  }
+}

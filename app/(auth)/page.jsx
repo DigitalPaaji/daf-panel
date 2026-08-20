@@ -20,8 +20,8 @@ import {
   ResponsiveContainer, 
   Legend 
 } from "recharts";
-import { base_url } from "../components/urls";
 import { toast } from "react-toastify";
+import { base_url } from "../components/urls";
 
 
 

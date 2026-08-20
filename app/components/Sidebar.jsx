@@ -51,7 +51,7 @@ const Sidebar = () => {
   
     { name: t("collection"), href: '/collections', icon: BsCollectionFill },
     { name: t("coupons"), href: '/coupons', icon: RiCoupon3Line  },
-    { name: t("analytics"), href: '/analytics', icon: FiBarChart2 },
+    // { name: t("analytics"), href: '/analytics', icon: FiBarChart2 },
     { name: t("settings"), href: '/settings', icon: FiSettings },
   ]; 
 

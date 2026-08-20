@@ -252,6 +252,12 @@ const toggleVariantImage = (variantIndex, imageIndex) => {
  
   const handleSave = async () => {
     setSaving(true);
+    if(product.shortDescription.trim().length > 200 ){
+     toast.warn(`Short Description must not exceed 200 characters. Current: ${product.shortDescription.trim().length}/200 `)
+   setSaving(false);
+     return
+  }
+
     const formData = new FormData();
 
     formData.append("name", product.name);
@@ -595,6 +601,7 @@ formData.append("newthumbnail",product?.newthumbnail)
                           onChange={(e) => handleVariantAttributeChange(vIndex, 'itemtype', e.target.value)}
                           className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg p-2 outline-none dark:text-white text-sm"
                         >
+                          <option value="" disabled  >--Select--</option>
                           <option value="weight">Weight</option>
                           <option value="color">Color</option>
                           <option value="size">Size</option>

@@ -145,6 +145,10 @@ const [variant, setVariant] = useState({
 
  const handleSubmit = async (e) => {
   e.preventDefault();
+if(productData.shortDescription.trim().length > 200 ){
+     toast.warn(`Short Description must not exceed 200 characters. Current: ${productData.shortDescription.trim().length}/200 `)
+    return
+  }
 
   const formData = new FormData();
   formData.append("name", productData.name);
@@ -803,7 +807,7 @@ setProductData((prev)=>({...prev,variants:filterVarinats}))
 
  <div  className="flex gap-2 mb-2">
 <select name="" value={variant.attributes.itemtype}  id="" className={`${commonInputClass} w-1/3 text-sm`}  onChange={(e)=>setVariant(prev=>({...prev,attributes:{...prev.attributes,itemtype:e.target.value}}))} >
-
+ <option value="" disabled  >--Select--</option>
   <option value="size">Size</option>
   <option value="weight">Weight</option>
   <option value="color">Color</option>

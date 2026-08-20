@@ -1,5 +1,6 @@
 "use client";
-import React from "react";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
 import { FaRupeeSign } from "react-icons/fa";
 import { 
   FiUsers, 
@@ -19,24 +20,28 @@ import {
   ResponsiveContainer, 
   Legend 
 } from "recharts";
+import { base_url } from "../components/urls";
+import { toast } from "react-toastify";
 
-// --- Dummy Data ---
-const revenueData = [
-  { name: "Jan", revenue: 4000, profit: 2400 },
-  { name: "Feb", revenue: 3000, profit: 1398 },
-  { name: "Mar", revenue: 2000, profit: 9800 },
-  { name: "Apr", revenue: 2780, profit: 3908 },
-  { name: "May", revenue: 1890, profit: 4800 },
-  { name: "Jun", revenue: 2390, profit: 3800 },
-  { name: "Jul", revenue: 3490, profit: 4300 },
+
+
+const months = [
+  "",
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
 ];
 
-const categoryData = [
-  { name: "Clothing", sales: 4000 },
-  { name: "Jewelry", sales: 3000 },
-  { name: "Accessories", sales: 2000 },
-  { name: "Footwear", sales: 2780 },
-];
+
 
 // --- Custom Tailwind Tooltip for Recharts ---
 const CustomTooltip = ({ active, payload, label }) => {
@@ -72,6 +77,69 @@ const StatCard = ({ title, value, icon: Icon, trend, trendUp }) => (
 );
 
 const Dashboard = () => {
+  const [allCategory, setAllCategory] = useState([]);
+  const [revenueData, setRevenueData] = useState([]);
+const [orderDetails,setOrderDetails]=useState({
+   totalOrders: 0,
+  paidOrders: 0,
+  monthlyOrders: 0,
+  monthlyPaidOrders: 0,
+  totalSales: 0,
+  paidSales: 0,
+  latestOrders: [],
+})
+const getCategory = async () => {
+    try {
+      const response = await axios.get(`${base_url}/category/get-all`);
+
+      if (response.data.success) {
+        const categoryChartData = response?.data?.data.map((category) => ({
+  name: category.name,
+  products: category.product.length,
+}));
+        setAllCategory(categoryChartData);
+      }
+    } catch (error) {
+      setAllCategory([]);
+      toast.error(
+        error.response?.data?.message || "Failed to fetch categories"
+      );
+    }
+  };
+
+
+
+const getOrder = async () => {
+    try {
+      const response = await axios.get(`${base_url}/order/get/details`);
+
+      if (response.data.success) {
+   
+        setOrderDetails(response.data.data);
+      const chartData = response.data.data.monthlyOrdersChart.map((item) => ({
+  name: months[item._id.month],
+  revenue: item.revenue,
+  paidRevenue: item.paidRevenue,
+  orders: item.orders,
+  paidOrders: item.paidOrders,
+}));
+
+setRevenueData(chartData);
+      }
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Failed to fetch Order"
+      );
+    }
+  };
+
+
+
+useEffect(() => {
+    getCategory();
+    getOrder()
+  }, []);
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-black text-slate-900 dark:text-slate-100 p-4 md:p-8 transition-colors duration-200">
       
@@ -83,11 +151,38 @@ const Dashboard = () => {
 
       {/* Top Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <StatCard title="Total Revenue" value="₹45,231.89" icon={FaRupeeSign} trend="+20.1% from last month" trendUp={true} />
-        <StatCard title="Active Users" value="2,350" icon={FiUsers} trend="+15.5% from last month" trendUp={true} />
-        <StatCard title="Total Orders" value="1,240" icon={FiShoppingBag} trend="-3.2% from last month" trendUp={false} />
-        <StatCard title="Conversion Rate" value="3.24%" icon={FiTrendingUp} trend="+1.2% from last month" trendUp={true} />
-      </div>
+   <StatCard
+  title="Total Revenue"
+  value={`₹${orderDetails.totalSales.toLocaleString()}`}
+  icon={FaRupeeSign}
+  trend="Overall Revenue"
+  trendUp
+/>
+
+<StatCard
+  title="Paid Revenue"
+  value={`₹${orderDetails.paidSales.toLocaleString()}`}
+  icon={FiDollarSign}
+  trend="Paid Revenue"
+  trendUp
+/>
+
+<StatCard
+  title="This Month Orders"
+  value={orderDetails.monthlyOrders}
+  icon={FiShoppingBag}
+  trend={`${orderDetails.totalOrders} Total Orders`}
+  trendUp
+/>
+
+<StatCard
+  title="This Month Paid"
+  value={orderDetails.monthlyPaidOrders}
+  icon={FiTrendingUp}
+  trend={`${orderDetails.paidOrders} Total Paid`}
+  trendUp
+/>
+</div>
 
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -97,43 +192,143 @@ const Dashboard = () => {
           <h2 className="text-lg font-semibold mb-6 text-slate-800 dark:text-white">Revenue Analytics</h2>
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={revenueData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
-                {/* Replaced hardcoded stroke with Tailwind classes using currentColor */}
-                <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-700" vertical={false} />
-                <XAxis dataKey="name" stroke="currentColor" className="text-slate-500 dark:text-slate-400 text-xs" />
-                <YAxis stroke="currentColor" className="text-slate-500 dark:text-slate-400 text-xs" />
-                
-                {/*     */}
-                <Tooltip content={<CustomTooltip />} />
-                <Legend wrapperStyle={{ paddingTop: '20px' }} />
-                
-                <Line type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
-                <Line type="monotone" dataKey="profit" stroke="#10b981" strokeWidth={3} dot={{ r: 4 }} />
-              </LineChart>
+            <LineChart
+  data={revenueData}
+  margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
+>
+  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+
+  <XAxis dataKey="name" />
+
+  <YAxis />
+
+  <Tooltip content={<CustomTooltip />} />
+
+  <Legend />
+
+  <Line
+    type="monotone"
+    dataKey="revenue"
+    name="Revenue"
+    stroke="#3b82f6"
+    strokeWidth={3}
+    dot={{ r: 4 }}
+    activeDot={{ r: 6 }}
+  />
+
+  <Line
+    type="monotone"
+    dataKey="paidRevenue"
+    name="Paid Revenue"
+    stroke="#10b981"
+    strokeWidth={3}
+    dot={{ r: 4 }}
+    activeDot={{ r: 6 }}
+  />
+</LineChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Secondary Chart */}
-        <div className="p-6 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm transition-colors">
-          <h2 className="text-lg font-semibold mb-6 text-slate-800 dark:text-white">Sales by Category</h2>
-          <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={categoryData} margin={{ top: 5, right: 0, bottom: 5, left: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-700" vertical={false} />
-                <XAxis dataKey="name" stroke="currentColor" className="text-slate-500 dark:text-slate-400 text-xs" />
-                
-                <Tooltip 
-                  cursor={{ className: 'fill-slate-100 dark:fill-slate-700/50' }}
-                  content={<CustomTooltip />} 
-                />
-                <Bar dataKey="sales" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+    
+      <div className="p-6 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm transition-colors">
+  <h2 className="text-lg font-semibold mb-6 text-slate-800 dark:text-white">
+    Products by Category
+  </h2>
+
+  <div className="h-[300px] w-full">
+    <ResponsiveContainer width="100%" height="100%">
+      <BarChart
+        data={allCategory}
+        margin={{ top: 5, right: 0, bottom: 5, left: 0 }}
+      >
+        <CartesianGrid
+          strokeDasharray="3 3"
+          className="stroke-slate-200 dark:stroke-slate-700"
+          vertical={false}
+        />
+
+        <XAxis
+          dataKey="name"
+          stroke="currentColor"
+          className="text-slate-500 dark:text-slate-400 text-xs"
+        />
+
+        <YAxis />
+
+        <Tooltip
+          cursor={{ fill: "#f3f4f6" }}
+          content={<CustomTooltip />}
+        />
+
+        <Bar
+          dataKey="products"
+          fill="#8b5cf6"
+          radius={[4, 4, 0, 0]}
+        />
+      </BarChart>
+    </ResponsiveContainer>
+  </div>
+</div>
 
       </div>
+
+
+
+
+
+
+      <div className="mt-8 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+  <div className="p-6 border-b border-slate-200 dark:border-slate-700">
+    <h2 className="text-lg font-semibold">Latest Orders</h2>
+  </div>
+
+  <div className="overflow-x-auto">
+    <table className="min-w-full">
+      <thead className="bg-slate-100 dark:bg-slate-700">
+        <tr>
+          <th className="px-4 py-3 text-left">Customer</th>
+          <th className="px-4 py-3 text-left">Amount</th>
+          <th className="px-4 py-3 text-left">Payment</th>
+          <th className="px-4 py-3 text-left">Status</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {orderDetails.latestOrders.map((order) => (
+          <tr
+            key={order._id}
+            className="border-b border-slate-200 dark:border-slate-700"
+          >
+            <td className="px-4 py-3">
+              {order.user?.name}
+            </td>
+
+            <td className="px-4 py-3">
+              ₹{order.totalPrice}
+            </td>
+
+            <td className="px-4 py-3">
+              <span
+                className={`px-2 py-1 rounded text-xs ${
+                  order.paymentStatus === "Paid"
+                    ? "bg-green-100 text-green-700"
+                    : "bg-yellow-100 text-yellow-700"
+                }`}
+              >
+                {order.paymentStatus}
+              </span>
+            </td>
+
+            <td className="px-4 py-3">
+              {order.orderStatus}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</div>
     </div>
   );
 };
